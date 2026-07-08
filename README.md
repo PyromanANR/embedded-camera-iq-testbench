@@ -21,7 +21,7 @@ Hello World! qemu_cortex_m3/ti_lm3s6965
 
 ## Why This Project Exists
 
-The project is built for Embedded Intern/Trainee, Image Quality Engineer Intern, AI Hardware QA, and Computer Vision / Camera QA roles. It demonstrates embedded C, C++, CMake, Zephyr, telemetry, simulated UART/I2C/SPI concepts, HTTP/JSON networking, power budgeting, Python, FastAPI, OpenCV image quality metrics, Dev Controls, reports, and QA documentation.
+The project is built for Embedded, Image Quality Engineer, AI Hardware QA, and Computer Vision / Camera QA roles. It demonstrates embedded C, C++, CMake, Zephyr, telemetry, simulated UART/I2C/SPI concepts, HTTP/JSON networking, power budgeting, Python, FastAPI, OpenCV image quality metrics, Dev Controls, reports, and QA documentation.
 
 ## Architecture
 
@@ -66,11 +66,21 @@ In real hardware this bridge would be UART / USB CDC / serial instead of a log f
 
 ## Screenshots
 
+<img width="2557" height="1226" alt="Screenshot 2026-07-09 011041" src="https://github.com/user-attachments/assets/1df24907-b172-4a53-acbc-0604b06b2dd3" />
 
+<img width="1742" height="602" alt="Screenshot 2026-07-09 011057" src="https://github.com/user-attachments/assets/6120fccb-052b-431f-ae66-ce81f4c3da50" />
+
+<img width="1747" height="696" alt="Screenshot 2026-07-09 011113" src="https://github.com/user-attachments/assets/5b5f256d-9b4b-45dd-96ed-d2c9fcddc6e2" />
+
+<img width="1747" height="350" alt="Screenshot 2026-07-09 011135" src="https://github.com/user-attachments/assets/12eddd29-352e-40bd-8515-25368a21835f" />
+
+<img width="1312" height="1132" alt="Screenshot 2026-07-09 011155" src="https://github.com/user-attachments/assets/0e932b0e-9823-48f8-8b98-0b1add9a020d" />
+
+<img width="1732" height="1017" alt="Screenshot 2026-07-09 011214" src="https://github.com/user-attachments/assets/6310f69e-b110-4571-b049-b12c5f224ad2" />
 
 ## Demo Video
 
-
+https://github.com/user-attachments/assets/a9db0642-1b63-486c-b2f1-1d2e73b2d4b1
 
 ## Quick Start
 
