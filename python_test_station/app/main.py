@@ -21,7 +21,7 @@ from .config import (
 )
 from .image_degradation import create_placeholder_image, encode_jpeg
 from .image_pipeline import analyze_snapshot
-from .presentation import metric_rows, telemetry_rows
+from .presentation import battery_status, metric_rows, telemetry_rows
 from .report_generator import save_report
 from .storage import has_stock_images, list_reports, load_report
 
@@ -57,6 +57,7 @@ async def _dashboard_context(request: Request) -> dict:
         "health": health,
         "telemetry": telemetry,
         "telemetry_rows": telemetry_rows(telemetry),
+        "battery": battery_status(telemetry),
         "metrics": metrics,
         "metric_rows": metric_rows(metrics),
         "latest_reports": list_reports()[:5],
@@ -71,6 +72,21 @@ async def _dashboard_context(request: Request) -> dict:
 @app.get("/")
 async def dashboard(request: Request):
     return templates.TemplateResponse(request, "dashboard.html", await _dashboard_context(request))
+
+
+@app.get("/api/status")
+async def api_status():
+    client = _client()
+    health, health_error = await client.health()
+    telemetry, telemetry_error = await client.telemetry() if not health_error else (None, health_error)
+    return {
+        "ok": not bool(health_error or telemetry_error),
+        "health": health,
+        "telemetry": telemetry,
+        "telemetry_rows": telemetry_rows(telemetry),
+        "battery": battery_status(telemetry),
+        "error": health_error or telemetry_error,
+    }
 
 
 @app.get("/run-test")

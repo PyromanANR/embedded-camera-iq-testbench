@@ -1,5 +1,6 @@
 #include "TelemetryModel.hpp"
 
+#include <algorithm>
 #include <sstream>
 
 #include "PowerModel.hpp"
@@ -33,6 +34,45 @@ Telemetry TelemetryModel::next(const std::string& mode, int frameId) {
 
     telemetry.errorCode = mode == "stock" ? 0 : 10;
     telemetry.estimatedPowerMw = powerModel.estimateMilliwatts(telemetry.powerState, telemetry.ledMode);
+    return telemetry;
+}
+
+Telemetry TelemetryModel::applyModeOverlay(Telemetry telemetry, const std::string& mode) const {
+    PowerModel powerModel;
+    const int phase = (telemetry.frameId / 2) % 5;
+    const int jitter = phase - 2;
+
+    telemetry.temperatureC += static_cast<double>(jitter) * 0.1;
+    telemetry.lux = std::max(0, telemetry.lux + jitter * 7);
+    telemetry.exposureMs = std::max(0.1, telemetry.exposureMs + static_cast<double>(phase) * 0.1);
+    telemetry.sensorGain = std::max(1.0, telemetry.sensorGain + static_cast<double>(phase) * 0.05);
+
+    if (mode == "low_light") {
+        telemetry.lux = std::max(1, 16 + jitter * 2);
+        telemetry.exposureMs = 32.0 + static_cast<double>(phase) * 0.4;
+        telemetry.sensorGain = 5.8 + static_cast<double>(phase) * 0.2;
+        telemetry.ledMode = "IR";
+        telemetry.powerState = "capture_ir";
+    } else if (mode == "noisy") {
+        telemetry.sensorGain = 6.8 + static_cast<double>(phase) * 0.25;
+    } else if (mode == "overexposed") {
+        telemetry.lux = 1120 + phase * 25;
+        telemetry.exposureMs = 17.0 + static_cast<double>(phase) * 0.2;
+    } else if (mode == "underexposed") {
+        telemetry.lux = std::max(5, 48 + jitter * 3);
+        telemetry.exposureMs = 2.8 + static_cast<double>(phase) * 0.1;
+    } else if (mode == "blurry") {
+        telemetry.exposureMs = 38.0 + static_cast<double>(phase) * 0.6;
+    } else if (mode == "jpeg_artifacts") {
+        telemetry.powerState = "transmit";
+    } else if (mode == "dead_pixels") {
+        telemetry.droppedFrames = phase % 3;
+    }
+
+    const std::string powerStateForModel = telemetry.powerState == "capture_ir" ? "capture" : telemetry.powerState;
+    telemetry.estimatedPowerMw = powerModel.estimateMilliwatts(powerStateForModel, telemetry.ledMode) + phase * 4;
+    telemetry.errorCode = mode == "stock" ? 0 : 10;
+    telemetry.activeMode = mode;
     return telemetry;
 }
 

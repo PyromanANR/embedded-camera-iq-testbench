@@ -39,7 +39,7 @@ west build -p always -b qemu_cortex_m3 .
 scripts\windows\run_zephyr.bat
 ```
 
-The run script writes Zephyr stdout to:
+The run script launches the built Zephyr ELF through Zephyr SDK QEMU and writes simulated UART output to:
 
 ```text
 runtime/zephyr_telemetry.log

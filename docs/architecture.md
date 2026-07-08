@@ -17,7 +17,7 @@ The confirmed Zephyr target is `qemu_cortex_m3 / ti_lm3s6965`.
 
 ## Telemetry Bridge
 
-For local Windows development, Zephyr prints `$SIMCAM` telemetry packets to stdout. `scripts/windows/run_zephyr.bat` writes this output to:
+For local Windows development, Zephyr prints `$SIMCAM` telemetry packets through the QEMU serial console. `scripts/windows/run_zephyr.bat` maps that simulated UART output to:
 
 ```text
 runtime/zephyr_telemetry.log
@@ -32,4 +32,3 @@ The C++ Gateway reads the latest valid packet from this log. This replaces a rea
 ## Python QA Dashboard
 
 `python_test_station/` is an external QA/lab tool. It calls the C++ Gateway via HTTP, analyzes images with OpenCV, displays metrics and creates reports.
-

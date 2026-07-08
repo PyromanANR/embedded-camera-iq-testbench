@@ -15,12 +15,29 @@
         <span>Virtual smart camera QA station</span>
       </div>
     </div>
-    <nav>
-      <a class="{{ 'active' if active_page == 'dashboard' else '' }}" href="/">Dashboard</a>
-      <a class="{{ 'active' if active_page == 'dev_controls' else '' }}" href="/dev-controls">Dev Controls</a>
-      <a class="{{ 'active' if active_page == 'reports' else '' }}" href="/reports">Reports</a>
-      <a class="{{ 'active' if active_page == 'setup' else '' }}" href="/setup">Setup</a>
-    </nav>
+    <div class="topbar-right">
+      <nav>
+        <a class="{{ 'active' if active_page == 'dashboard' else '' }}" href="/">Dashboard</a>
+        <a class="{{ 'active' if active_page == 'dev_controls' else '' }}" href="/dev-controls">Dev Controls</a>
+        <a class="{{ 'active' if active_page == 'reports' else '' }}" href="/reports">Reports</a>
+        <a class="{{ 'active' if active_page == 'setup' else '' }}" href="/setup">Setup</a>
+      </nav>
+      {% if battery is defined %}
+        <aside class="top-battery {{ battery.state }}" data-battery-panel>
+          <div class="top-battery-main">
+            <span>Battery</span>
+            <strong><span data-battery-percent>{{ battery.percent }}</span>%</strong>
+            <span><span data-battery-runtime>{{ battery.runtime_label }}</span> left</span>
+            <span><span data-battery-power>{{ battery.estimated_power_mw }}</span> mW</span>
+          </div>
+          <div class="top-battery-modules">
+            {% for module in battery.breakdown %}
+              <span data-power-module="{{ module.key }}">{{ module.name }}: {{ module.mw }} mW</span>
+            {% endfor %}
+          </div>
+        </aside>
+      {% endif %}
+    </div>
   </header>
   <main class="page">
     {% block content %}{% endblock %}

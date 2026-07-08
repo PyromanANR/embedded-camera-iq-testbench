@@ -28,6 +28,9 @@ int main(void) {
     while (1) {
         app_state_set(&app, SIMCAM_CAPTURE);
         app.frame_counter++;
+        if ((app.frame_counter % 45U) == 0U && app.battery_percent > 5U) {
+            app.battery_percent--;
+        }
         app.error_code = fault_injection_error_code();
 
         camera_control_fill_telemetry(&telemetry, app.frame_counter, app.battery_percent, app.error_code);
@@ -42,4 +45,3 @@ int main(void) {
 
     return 0;
 }
-

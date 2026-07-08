@@ -33,7 +33,7 @@ TELEMETRY_LABELS = {
     "device_id": ("Device ID", ""),
     "firmware_version": ("Firmware version", ""),
     "frame_id": ("Frame ID", "frames"),
-    "temperature_c": ("Temperature", "°C"),
+    "temperature_c": ("Temperature", "C"),
     "battery_percent": ("Battery charge", "%"),
     "lux": ("Illuminance", "lx"),
     "exposure_ms": ("Exposure time", "ms"),
@@ -46,6 +46,84 @@ TELEMETRY_LABELS = {
     "error_code": ("Error code", ""),
     "active_mode": ("Active mode", ""),
 }
+
+BATTERY_CAPACITY_MAH = 2600
+BATTERY_NOMINAL_VOLTAGE = 3.7
+
+
+def battery_status(telemetry: dict[str, Any] | None) -> dict[str, Any]:
+    capacity_wh = BATTERY_CAPACITY_MAH * BATTERY_NOMINAL_VOLTAGE / 1000
+    if not telemetry:
+        return {
+            "available": False,
+            "percent": "--",
+            "state": "offline",
+            "estimated_power_mw": 0,
+            "runtime_label": "--",
+            "remaining_wh": 0.0,
+            "capacity_wh": round(capacity_wh, 2),
+            "breakdown": [],
+        }
+
+    percent = _as_float(telemetry.get("battery_percent"), 0.0)
+    estimated_power = max(_as_float(telemetry.get("estimated_power_mw"), 0.0), 0.0)
+    remaining_wh = capacity_wh * percent / 100
+    runtime_hours = remaining_wh / (estimated_power / 1000) if estimated_power > 0 else 0
+
+    if percent >= 50:
+        state = "good"
+    elif percent >= 20:
+        state = "warning"
+    else:
+        state = "critical"
+
+    return {
+        "available": True,
+        "percent": f"{percent:.0f}",
+        "state": state,
+        "estimated_power_mw": int(round(estimated_power)),
+        "runtime_label": _runtime_label(runtime_hours),
+        "remaining_wh": round(remaining_wh, 2),
+        "capacity_wh": round(capacity_wh, 2),
+        "breakdown": power_breakdown(telemetry),
+    }
+
+
+def power_breakdown(telemetry: dict[str, Any] | None) -> list[dict[str, Any]]:
+    telemetry = telemetry or {}
+    power_state = str(telemetry.get("power_state", "capture"))
+    led_mode = str(telemetry.get("led_mode", "OFF"))
+    estimated = int(round(_as_float(telemetry.get("estimated_power_mw"), 0.0)))
+
+    if power_state == "sleep":
+        modules = [("MCU sleep", 5)]
+    elif power_state == "idle":
+        modules = [("MCU idle", 20), ("UART debug", 5)]
+    else:
+        modules = [("MCU active", 35), ("Image sensor", 120), ("UART debug", 5)]
+        if power_state == "transmit":
+            modules.append(("Network TX", 300))
+        if led_mode == "WLED":
+            modules.append(("White LED", 450))
+        elif led_mode == "IR":
+            modules.append(("IR LED", 380))
+
+    module_total = sum(value for _, value in modules)
+    transient = max(0, estimated - module_total)
+    if transient:
+        modules.append(("Transient load", transient))
+        module_total += transient
+
+    total = max(module_total, estimated, 1)
+    return [
+        {
+            "key": name.lower().replace(" ", "_"),
+            "name": name,
+            "mw": value,
+            "share": round(value * 100 / total),
+        }
+        for name, value in modules
+    ]
 
 
 def metric_rows(metrics: dict[str, Any] | None) -> list[dict[str, str]]:
@@ -111,6 +189,23 @@ def telemetry_rows(telemetry: dict[str, Any] | None) -> list[dict[str, str]]:
     return rows
 
 
+def _as_float(value: Any, default: float) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _runtime_label(hours: float) -> str:
+    if hours <= 0:
+        return "--"
+    if hours < 1:
+        return f"{hours * 60:.0f} min"
+    if hours < 48:
+        return f"{hours:.1f} h"
+    return f"{hours / 24:.1f} days"
+
+
 def _format_metric_value(value: float, spec: MetricSpec) -> str:
     if spec.unit == "%":
         return f"{value * 100:.{spec.precision}f}"
@@ -159,4 +254,3 @@ def _delta_from_normal(value: float, spec: MetricSpec) -> str:
         nearest = spec.pass_min if value < spec.pass_min else spec.pass_max
         return f"{value - nearest:+.{spec.precision}f} {unit} vs range"
     return "-"
-

@@ -54,19 +54,62 @@ nav a {
   border-radius: 6px;
 }
 nav a.active, nav a:hover { background: #21444d; color: #fff; }
+.topbar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.top-battery {
+  min-width: 420px;
+  max-width: 680px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.08);
+}
+.top-battery.good { border-color: rgba(83, 207, 140, 0.45); }
+.top-battery.warning { border-color: rgba(247, 190, 80, 0.55); }
+.top-battery.critical { border-color: rgba(255, 118, 102, 0.6); }
+.top-battery-main,
+.top-battery-modules {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.top-battery-main span,
+.top-battery-modules span {
+  color: #d6e7eb;
+  font-size: 12px;
+}
+.top-battery-main strong {
+  color: #fff;
+  font-size: 18px;
+}
+.top-battery-modules {
+  margin-top: 5px;
+  gap: 6px;
+}
+.top-battery-modules span {
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+}
 
 .page { max-width: 1440px; margin: 0 auto; padding: 24px; }
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .dashboard-grid { grid-template-columns: minmax(420px, 1.3fr) minmax(320px, 0.7fr); }
 .dashboard-layout {
   display: grid;
-  grid-template-columns: minmax(460px, 1.2fr) minmax(320px, 0.8fr) minmax(280px, 0.6fr);
+  grid-template-columns: repeat(2, minmax(420px, 1fr));
   gap: 18px;
   align-items: stretch;
 }
 .controls-grid { grid-template-columns: minmax(420px, 1.2fr) minmax(320px, 0.8fr); }
 .wide { grid-column: 1 / -1; }
-.quality-panel, .recent-panel { grid-column: 1 / -1; }
+.quality-panel, .recent-panel, .power-panel { grid-column: 1 / -1; }
 
 .panel {
   background: var(--panel);
@@ -88,6 +131,12 @@ h1, h2 { margin: 0; line-height: 1.2; letter-spacing: 0; }
 h1 { font-size: 26px; }
 h2 { font-size: 20px; }
 .snapshot { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: contain; background: #0b1215; border-radius: 6px; }
+.dashboard-layout > .panel {
+  min-height: 344px;
+}
+.snapshot-panel .snapshot {
+  max-height: 276px;
+}
 
 .kv {
   display: grid;
@@ -111,6 +160,7 @@ h2 { font-size: 20px; }
   font-weight: 700;
 }
 .pill.ok, .verdict.pass { color: var(--good); background: #e8f5ee; }
+.pill.warning { color: var(--warn); background: #fff4d6; }
 .pill.bad, .verdict.fail { color: var(--bad); background: #fdeceb; }
 .verdict.warning { color: var(--warn); background: #fff4d6; }
 .verdict-large {
@@ -207,11 +257,62 @@ select { min-width: 230px; }
 .report-grid {
   margin-top: 18px;
 }
+.power-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(300px, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.module-breakdown {
+  display: grid;
+  gap: 10px;
+}
+.module-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) auto;
+  gap: 8px 12px;
+  align-items: center;
+}
+.module-row span {
+  color: var(--muted);
+  font-weight: 650;
+}
+.module-row strong {
+  font-size: 13px;
+}
+.module-bar {
+  grid-column: 1 / -1;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e7eef2;
+}
+.module-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #126a77, #e26d42);
+}
+.power-chart-wrap {
+  grid-column: 1 / -1;
+  min-height: 196px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: #f9fbfc;
+}
+#powerChart {
+  display: block;
+  width: 100%;
+  height: 180px;
+}
 pre { white-space: pre-wrap; background: #eef3f6; padding: 14px; border-radius: 6px; overflow-x: auto; }
 code { background: #eef3f6; padding: 2px 5px; border-radius: 4px; }
 
 @media (max-width: 860px) {
   .topbar { align-items: flex-start; flex-direction: column; }
+  .topbar-right { justify-content: flex-start; width: 100%; }
+  .top-battery { min-width: 0; width: 100%; }
   nav { justify-content: flex-start; }
   .grid, .dashboard-grid, .dashboard-layout, .controls-grid { grid-template-columns: 1fr; }
   .page { padding: 16px; }
@@ -220,4 +321,5 @@ code { background: #eef3f6; padding: 2px 5px; border-radius: 4px; }
   .metric-table { table-layout: auto; }
   .metric-table th,
   .metric-table td { font-size: 13px; padding: 8px; }
+  .power-grid { grid-template-columns: 1fr; }
 }

@@ -66,30 +66,11 @@ In real hardware this bridge would be UART / USB CDC / serial instead of a log f
 
 ## Screenshots
 
-Add screenshots to:
 
-```text
-docs/media/screenshots/
-```
-
-Recommended:
-
-- `dashboard.png`
-- `dev-controls.png`
-- `report.png`
 
 ## Demo Video
 
-Add demo video or GIF to:
 
-```text
-docs/media/demo/
-```
-
-Recommended:
-
-- `demo.mp4`
-- `demo.gif`
 
 ## Quick Start
 
@@ -185,11 +166,13 @@ Build:
 scripts\windows\build_zephyr.bat
 ```
 
-Run and write telemetry bridge log:
+Run the firmware simulation and write the UART-style serial output to the telemetry bridge log:
 
 ```bat
 scripts\windows\run_zephyr.bat
 ```
+
+On Windows, the run script launches the built Zephyr ELF through the Zephyr SDK QEMU and maps the simulated UART to `runtime/zephyr_telemetry.log`. This avoids fragile stdout piping while preserving the same local bridge concept.
 
 Telemetry packet:
 
@@ -262,4 +245,3 @@ scripts\windows\build_cpp_gateway.bat
 ## License
 
 MIT License. Copyright (c) 2026 Nikita Avdeev.
-

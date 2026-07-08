@@ -23,7 +23,7 @@ Build from the repository root:
 scripts\windows\build_zephyr.bat
 ```
 
-Run and write stdout telemetry to `runtime/zephyr_telemetry.log`:
+Run and write simulated UART telemetry to `runtime/zephyr_telemetry.log`:
 
 ```bat
 scripts\windows\run_zephyr.bat

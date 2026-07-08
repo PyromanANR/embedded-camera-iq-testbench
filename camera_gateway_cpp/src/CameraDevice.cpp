@@ -50,6 +50,7 @@ std::string CameraDevice::telemetryJson() {
     auto telemetry = *result.telemetry;
     telemetry.activeMode = activeMode_;
     telemetry.connectionStatus = "firmware_online";
+    telemetry = telemetryModel_.applyModeOverlay(telemetry, activeMode_);
     return telemetryModel_.toJson(telemetry);
 }
 

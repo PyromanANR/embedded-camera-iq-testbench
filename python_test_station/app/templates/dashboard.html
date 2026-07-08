@@ -37,6 +37,20 @@
     {% endif %}
   </div>
 
+  <div class="panel">
+    <div class="panel-header"><h2>Telemetry</h2></div>
+    {% if telemetry_rows %}
+      <dl class="kv aligned">
+        {% for row in telemetry_rows %}
+          <dt>{{ row.label }}</dt>
+          <dd data-telemetry-key="{{ row.key }}" data-unit="{{ row.unit }}">{{ row.value }}{% if row.unit %} <span class="unit">{{ row.unit }}</span>{% endif %}</dd>
+        {% endfor %}
+      </dl>
+    {% else %}
+      <p class="muted">Telemetry is unavailable.</p>
+    {% endif %}
+  </div>
+
   <div class="panel verdict-panel">
     <div class="panel-header"><h2>Final Verdict</h2></div>
     {% if metrics %}
@@ -49,17 +63,36 @@
     {% endif %}
   </div>
 
-  <div class="panel">
-    <div class="panel-header"><h2>Telemetry</h2></div>
-    {% if telemetry_rows %}
-      <dl class="kv aligned">
-        {% for row in telemetry_rows %}
-          <dt>{{ row.label }}</dt><dd>{{ row.value }}{% if row.unit %} <span class="unit">{{ row.unit }}</span>{% endif %}</dd>
+  <div class="panel power-panel wide">
+    <div class="panel-header">
+      <h2>Battery And Power Budget</h2>
+      <span class="pill {{ 'ok' if battery.state == 'good' else 'bad' if battery.state == 'critical' else 'warning' }}">
+        {{ battery.percent }}% / {{ battery.runtime_label }}
+      </span>
+    </div>
+    <div class="power-grid">
+      <div>
+        <dl class="kv aligned">
+          <dt>Battery state</dt><dd data-battery-state>{{ battery.state }}</dd>
+          <dt>Remaining energy</dt><dd><span data-battery-remaining>{{ battery.remaining_wh }}</span> <span class="unit">Wh</span></dd>
+          <dt>Total battery reserve</dt><dd>{{ battery.capacity_wh }} <span class="unit">Wh / 2600 mAh @ 3.7 V</span></dd>
+          <dt>Current draw estimate</dt><dd><span data-battery-power>{{ battery.estimated_power_mw }}</span> <span class="unit">mW</span></dd>
+          <dt>Estimated time left</dt><dd data-battery-runtime>{{ battery.runtime_label }}</dd>
+        </dl>
+      </div>
+      <div class="module-breakdown">
+        {% for module in battery.breakdown %}
+          <div class="module-row" data-power-module-row="{{ module.key }}">
+            <span>{{ module.name }}</span>
+            <strong data-power-module-value="{{ module.key }}">{{ module.mw }} mW</strong>
+            <div class="module-bar"><span style="width: {{ module.share }}%"></span></div>
+          </div>
         {% endfor %}
-      </dl>
-    {% else %}
-      <p class="muted">Telemetry is unavailable.</p>
-    {% endif %}
+      </div>
+      <div class="power-chart-wrap">
+        <canvas id="powerChart" width="680" height="180" data-initial-power="{{ battery.estimated_power_mw }}"></canvas>
+      </div>
+    </div>
   </div>
 
   <div class="panel quality-panel">

@@ -24,14 +24,31 @@ if not defined ZEPHYR_BASE (
   )
 )
 
-set "SIMCAM_WEST=%WEST_CMD%"
+set "ELF=firmware_zephyr\build\zephyr\zephyr.elf"
+if not exist "%ELF%" (
+  echo Zephyr ELF was not found. Building firmware first...
+  call scripts\windows\build_zephyr.bat
+  if errorlevel 1 exit /b 1
+)
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-  "$ErrorActionPreference='Stop';" ^
-  "$root=(Resolve-Path '.').Path;" ^
-  "$log=Join-Path $root 'runtime\zephyr_telemetry.log';" ^
-  "$west=$env:SIMCAM_WEST;" ^
-  "Set-Content -Path $log -Value '';" ^
-  "Push-Location (Join-Path $root 'firmware_zephyr');" ^
-  "& $west build -t run 2>&1 | Tee-Object -FilePath $log -Append;" ^
-  "Pop-Location"
+set "QEMU=%USERPROFILE%\zephyr-sdk-1.0.1\hosttools\qemu\qemu-system-arm.exe"
+if not exist "%QEMU%" (
+  echo qemu-system-arm.exe was not found under %%USERPROFILE%%\zephyr-sdk-1.0.1.
+  echo Install the Zephyr SDK or run from a Zephyr environment shell.
+  exit /b 1
+)
+
+if exist "C:\Program Files\Git\mingw64\bin" set "PATH=C:\Program Files\Git\mingw64\bin;%PATH%"
+if exist "C:\tools\msys64\mingw64\bin" set "PATH=C:\tools\msys64\mingw64\bin;%PATH%"
+
+type nul > runtime\zephyr_telemetry.log
+
+echo QEMU is running. Press Ctrl+C to stop firmware simulation.
+"%QEMU%" -cpu cortex-m3 -machine lm3s6965evb ^
+  -chardev "file,id=serial0,path=%CD%\runtime\zephyr_telemetry.log" ^
+  -serial chardev:serial0 ^
+  -monitor none ^
+  -nographic ^
+  -rtc clock=vm ^
+  -net none ^
+  -kernel "%CD%\%ELF%"
