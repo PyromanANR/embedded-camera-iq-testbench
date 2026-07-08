@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SIMCAM IQ Testbench</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">IQ</span>
+      <div>
+        <strong>Embedded Camera IQ Testbench</strong>
+        <span>Virtual smart camera QA station</span>
+      </div>
+    </div>
+    <nav>
+      <a class="{{ 'active' if active_page == 'dashboard' else '' }}" href="/">Dashboard</a>
+      <a class="{{ 'active' if active_page == 'dev_controls' else '' }}" href="/dev-controls">Dev Controls</a>
+      <a class="{{ 'active' if active_page == 'reports' else '' }}" href="/reports">Reports</a>
+      <a class="{{ 'active' if active_page == 'setup' else '' }}" href="/setup">Setup</a>
+    </nav>
+  </header>
+  <main class="page">
+    {% block content %}{% endblock %}
+  </main>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

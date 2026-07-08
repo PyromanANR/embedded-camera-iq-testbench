@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="status-strip">
+  {% if device_error %}
+    <div class="alert danger">C++ Camera Gateway is offline. Start the gateway on port 8081.</div>
+  {% endif %}
+  {% if stock_missing %}
+    <div class="alert warning">No user stock images found. Add clean camera images to data/frames/stock/. A generated placeholder is used for now.</div>
+  {% endif %}
+</section>
+
+<section class="dashboard-layout">
+  <div class="panel snapshot-panel">
+    <div class="panel-header">
+      <h1>Current Snapshot</h1>
+      <span class="pill">{{ health.active_mode if health else "offline" }}</span>
+    </div>
+    <img class="snapshot" src="{{ snapshot_url }}" alt="Current camera snapshot">
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Device Status</h2>
+      <span class="pill {{ 'ok' if health else 'bad' }}">{{ health.status if health else "offline" }}</span>
+    </div>
+    {% if health %}
+      <dl class="kv">
+        <dt>Device ID</dt><dd>{{ health.device_id }}</dd>
+        <dt>Firmware</dt><dd>{{ health.firmware_version }}</dd>
+        <dt>Firmware status</dt><dd><span class="status-dot {{ 'pass' if health.firmware_status == 'firmware_online' else 'warning' }}">{{ health.firmware_status }}</span></dd>
+        <dt>Telemetry source</dt><dd>{{ health.telemetry_source }}</dd>
+        <dt>Uptime</dt><dd>{{ health.uptime_ms }} <span class="unit">ms</span></dd>
+        <dt>Mode</dt><dd>{{ health.active_mode }}</dd>
+      </dl>
+    {% else %}
+      <p class="muted">No health packet received from the C++ Camera Gateway at {{ device_base_url }}.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel verdict-panel">
+    <div class="panel-header"><h2>Final Verdict</h2></div>
+    {% if metrics %}
+      <div class="verdict-large {{ metrics.verdict|lower }}">{{ metrics.verdict }}</div>
+      <p class="muted">Active mode: <strong>{{ health.active_mode if health else "unknown" }}</strong></p>
+      <p>Issues: {{ metrics.issues|join(", ") if metrics.issues else "none" }}</p>
+    {% else %}
+      <div class="verdict-large unknown">UNKNOWN</div>
+      <p class="muted">Run firmware, gateway and dashboard to evaluate the current frame.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><h2>Telemetry</h2></div>
+    {% if telemetry_rows %}
+      <dl class="kv aligned">
+        {% for row in telemetry_rows %}
+          <dt>{{ row.label }}</dt><dd>{{ row.value }}{% if row.unit %} <span class="unit">{{ row.unit }}</span>{% endif %}</dd>
+        {% endfor %}
+      </dl>
+    {% else %}
+      <p class="muted">Telemetry is unavailable.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel quality-panel">
+    <div class="panel-header">
+      <h2>Image Quality Metrics</h2>
+      <form class="actions quality-action" method="post" action="/tests/run">
+        <button class="primary" name="frames" value="1" type="submit">Run IQ Test</button>
+      </form>
+    </div>
+    {% if metric_rows %}
+      <table class="metric-table compact">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Current</th>
+            <th>Normal / threshold</th>
+            <th>Delta</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for row in metric_rows %}
+          <tr>
+            <td>{{ row.label }}</td>
+            <td>{{ row.value }}{% if row.unit %} <span class="unit">{{ row.unit }}</span>{% endif %}</td>
+            <td>{{ row.normal }}</td>
+            <td>{{ row.delta }}</td>
+            <td><span class="status-dot {{ row.status }}">{{ row.status|upper }}</span></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">Metrics will appear after a snapshot is available.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel recent-panel">
+    <div class="panel-header">
+      <h2>Recent Reports</h2>
+      <a href="/reports">View all</a>
+    </div>
+    {% if latest_reports %}
+      <table class="report-table">
+        <thead><tr><th>Timestamp</th><th>Mode</th><th>Verdict</th><th>Open</th></tr></thead>
+        <tbody>
+        {% for report in latest_reports %}
+          <tr>
+            <td>{{ report.timestamp }}</td>
+            <td>{{ report.mode }}</td>
+            <td><span class="verdict {{ report.verdict|lower }}">{{ report.verdict }}</span></td>
+            <td><a href="/reports/{{ report.id }}">Details</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">No reports yet. Run an IQ test to create the first report.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

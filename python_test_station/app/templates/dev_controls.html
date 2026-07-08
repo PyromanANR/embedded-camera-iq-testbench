@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="status-strip">
+  {% if device_error %}
+    <div class="alert danger">C++ Camera Gateway is offline. Start the gateway on port 8081.</div>
+  {% endif %}
+</section>
+
+<section class="grid controls-grid">
+  <div class="panel snapshot-panel">
+    <div class="panel-header">
+      <h1>Dev Controls</h1>
+      <span class="pill">{{ health.active_mode if health else "offline" }}</span>
+    </div>
+    <img class="snapshot" src="{{ snapshot_url }}" alt="Current device mode snapshot">
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><h2>Mode Switch</h2></div>
+    <form method="post" action="/dev-controls/mode" class="mode-form">
+      <select name="mode" aria-label="Device mode">
+        {% for mode in modes %}
+          <option value="{{ mode }}">{{ mode_labels.get(mode, mode) }}</option>
+        {% endfor %}
+      </select>
+      <button class="primary" type="submit">Apply</button>
+    </form>
+    <form method="post" action="/dev-controls/reset" class="actions">
+      <button type="submit">Reset device</button>
+    </form>
+    <p class="muted">Apply sends POST {{ "http://127.0.0.1:8081/control/mode" }} with JSON mode through the Python camera client.</p>
+  </div>
+
+  <div class="panel wide">
+    <div class="panel-header"><h2>Photo Paths</h2></div>
+    <p class="strong">Add your original clean camera images to: data/frames/stock/</p>
+    <p><code>{{ stock_path }}</code></p>
+    <dl class="kv paths">
+      {% for mode, path in photo_paths.items() %}
+        <dt>{{ mode }}</dt><dd>{{ path }}</dd>
+      {% endfor %}
+    </dl>
+  </div>
+</section>
+{% endblock %}

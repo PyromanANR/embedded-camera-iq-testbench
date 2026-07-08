@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <div class="panel-header"><h1>Reports</h1></div>
+  {% if reports %}
+    <table class="report-table">
+      <thead>
+        <tr><th>Timestamp</th><th>Mode</th><th>Verdict</th><th>Issues</th><th>Open</th></tr>
+      </thead>
+      <tbody>
+      {% for report in reports %}
+        <tr>
+          <td>{{ report.timestamp }}</td>
+          <td>{{ report.mode }}</td>
+          <td><span class="verdict {{ report.verdict|lower }}">{{ report.verdict }}</span></td>
+          <td>{{ report.issues|join(", ") if report.issues else "none" }}</td>
+          <td><a href="/reports/{{ report.id }}">Details</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted">No reports yet. Run a single or 10-frame test first.</p>
+  {% endif %}
+</section>
+{% endblock %}
+

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel report-hero">
+  <div class="panel-header">
+    <div>
+      <h1>IQ Report {{ report.id }}</h1>
+      <p class="muted">{{ report.timestamp }} · Mode: <strong>{{ report.mode }}</strong> · Frames: {{ report.frame_count }}</p>
+    </div>
+    <span class="verdict {{ report.verdict|lower }}">{{ report.verdict }}</span>
+  </div>
+  <p>{{ report.explanation }}</p>
+  <dl class="kv report-summary">
+    <dt>Snapshot reference</dt><dd>{{ report.snapshot_path }}</dd>
+    <dt>Issues</dt><dd>{{ report.issues|join(", ") if report.issues else "none" }}</dd>
+  </dl>
+</section>
+
+<section class="grid report-grid">
+  <div class="panel wide">
+    <div class="panel-header"><h2>Image Metrics</h2></div>
+    <table class="metric-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Current value</th>
+          <th>Normal / threshold</th>
+          <th>Delta from pass limit</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for row in metric_rows %}
+        <tr>
+          <td>{{ row.label }}</td>
+          <td>{{ row.value }}{% if row.unit %} <span class="unit">{{ row.unit }}</span>{% endif %}</td>
+          <td>{{ row.normal }}</td>
+          <td>{{ row.delta }}</td>
+          <td><span class="status-dot {{ row.status }}">{{ row.status|upper }}</span></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel wide">
+    <div class="panel-header"><h2>Device Telemetry</h2></div>
+    <table class="metric-table">
+      <thead>
+        <tr>
+          <th>Signal</th>
+          <th>Value</th>
+          <th>Unit</th>
+          <th>Raw key</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for row in telemetry_rows %}
+        <tr>
+          <td>{{ row.label }}</td>
+          <td>{{ row.value }}</td>
+          <td>{{ row.unit if row.unit else "-" }}</td>
+          <td><code>{{ row.key }}</code></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

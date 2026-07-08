@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <div class="panel-header"><h1>Setup</h1></div>
+  <p class="strong">Add your original clean camera images to: data/frames/stock/</p>
+  <p><code>{{ stock_path }}</code></p>
+  <p>Device server URL: <code>{{ device_base_url }}</code></p>
+  <p>Test station URL: <code>{{ test_station_url }}</code></p>
+</section>
+
+<section class="grid">
+  <div class="panel">
+    <div class="panel-header"><h2>Run Commands</h2></div>
+    <pre><code>scripts\windows\build_cpp_gateway.bat
+scripts\windows\run_cpp_gateway.bat
+
+scripts\windows\run_python_dashboard.bat</code></pre>
+  </div>
+  <div class="panel">
+    <div class="panel-header"><h2>Troubleshooting</h2></div>
+    <ul>
+      <li>If the dashboard says the device is offline, start the C++ Camera Gateway on port 8081.</li>
+      <li>If a port is busy, close the previous uvicorn process or run on another port.</li>
+      <li>If no photos exist in stock, the generated placeholder keeps the system runnable.</li>
+      <li>If OpenCV import fails, reinstall dependencies in the selected PyCharm interpreter.</li>
+    </ul>
+  </div>
+</section>
+{% endblock %}
